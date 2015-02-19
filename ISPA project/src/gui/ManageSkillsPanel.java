@@ -10,6 +10,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+
+//comment 
 public class ManageSkillsPanel extends JPanel{
 
 	/**
