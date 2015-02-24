@@ -48,6 +48,7 @@ import java.awt.Component;
 public class MainWindow extends JFrame{
 	/**
 	 * 
+	 * 
 	 */
 	private static final long serialVersionUID = 2025522416616040535L;
 	private JPanel contentPane;
