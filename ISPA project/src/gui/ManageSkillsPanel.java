@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 
 //comment
 //comment 
+//comment
 public class ManageSkillsPanel extends JPanel{
 
 	/**
