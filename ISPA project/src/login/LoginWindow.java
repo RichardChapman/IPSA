@@ -76,10 +76,7 @@ public class LoginWindow {
 
 	        // Execute a query
 	        ResultSet rs = stmnt.executeQuery(query);
-				
-	        ResultSetMetaData rsmd = rs.getMetaData();
-	        int columnsNumber = rsmd.getColumnCount();
-	        
+					        
 	        try{
 				while (rs.next()){
 					//System.out.println(rs.getString("username")+", "+rs.getString("password")+", "+rs.getInt("type"));
