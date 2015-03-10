@@ -90,7 +90,7 @@ public class LoginWindow {
 						txtrErrorThatUsername.setEnabled(true);
 					}
 					else{
-						System.out.println("Login accepted");
+						//System.out.println("Login accepted");
 						//Login.login(loginType);
 					}
 				} catch (SQLException e) {
