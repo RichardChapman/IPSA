@@ -1,7 +1,5 @@
 package login;
 
-//import Login;
-
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.SystemColor;
@@ -17,6 +15,7 @@ import java.sql.Statement;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -26,8 +25,7 @@ import main_window.MainWindow;
 
 
 public class LoginWindow {
-	private JFrame frame;
-	private JFrame frmIpsaLogin;
+	public JFrame frmIpsaLogin;
 	private JTextField passField;
 	private JTextField userField;
 
@@ -42,7 +40,7 @@ public class LoginWindow {
 		frmIpsaLogin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmIpsaLogin.getContentPane().setLayout(null);
 		
-		passField = new JTextField();
+		passField = new JPasswordField();
 		passField.setBounds(129, 85, 86, 20);
 		frmIpsaLogin.getContentPane().add(passField);
 		passField.setColumns(10);
@@ -92,6 +90,7 @@ public class LoginWindow {
 						txtrErrorThatUsername.setEnabled(true);
 					}
 					else{
+						System.out.println("Login accepted");
 						//Login.login(loginType);
 					}
 				} catch (SQLException e) {

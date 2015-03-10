@@ -31,5 +31,6 @@ public class IPSAApplication {
 	 */
 	public IPSAApplication() {
 		LoginWindow lw = new LoginWindow();
+		lw.frmIpsaLogin.setVisible(true);
 	}
 }
