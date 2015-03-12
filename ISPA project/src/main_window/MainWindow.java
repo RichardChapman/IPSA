@@ -54,51 +54,70 @@ public class MainWindow extends JFrame{
 	private JPanel contentPane;
 	private JTabbedPane tabbedPane;
 
-		public MainWindow(){
-			setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-			setBounds(100, 100, 800, 600);
+	public MainWindow(int profileType){
+		
+		System.out.println("Creating main window.");
+		
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setBounds(100, 100, 800, 600);
+		
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		contentPane.setLayout(null);
+		setContentPane(contentPane);
 			
-			contentPane = new JPanel();
-			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-			contentPane.setLayout(null);
-			setContentPane(contentPane);
+	    tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane.setBackground(Color.WHITE);
+		tabbedPane.setBounds(6, 49, 788, 523);
 			
-		    tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-			tabbedPane.setBackground(Color.WHITE);
-			tabbedPane.setBounds(6, 49, 788, 523);
-			
-			// Create the four "activities"
-			EmployeeSelectionPanel employeeSelectionPanel = new EmployeeSelectionPanel();
-			ViewEmployeesPanel viewEmployeesPanel = new ViewEmployeesPanel();
-			ManageEmployeesPanel manageEmployeesPanel = new ManageEmployeesPanel();			
-			ManageSkillsPanel manageSkillsPanel = new ManageSkillsPanel();
-			
-			// Add activities to tabbedPane
-			tabbedPane.addTab("Employee Selection", null, employeeSelectionPanel, null);
-			tabbedPane.addTab("View Employees", null, viewEmployeesPanel, null);
-			tabbedPane.addTab("Manage Employees", null, manageEmployeesPanel, null);
-			tabbedPane.addTab("Manage Skills", null, manageSkillsPanel, null);
-			
-			/* Below is the actual configuration once we get the profileType
-			 * from the login information. We will display the different activities
-			 * accordingly
-			 *
-			switch(profileType){
-			case ProjectLead:
-				tabbedPane.addTab("Employee Selection", null, employeeSelectionPanel, null);
-				break;
-			case Administrator:
+		// Create the four "activities"
+		EmployeeSelectionPanel employeeSelectionPanel = new EmployeeSelectionPanel();
+		ViewEmployeesPanel viewEmployeesPanel = new ViewEmployeesPanel();
+		ManageEmployeesPanel manageEmployeesPanel = new ManageEmployeesPanel();			
+		ManageSkillsPanel manageSkillsPanel = new ManageSkillsPanel();
+		
+		switch(profileType){
+			case 1:
+				System.out.println("Admin mode");
 				tabbedPane.addTab("Manage Skills", null, manageSkillsPanel, null);
 				tabbedPane.addTab("Manage Employees", null, manageEmployeesPanel, null);
 				break;		
-			case Manager:
+			case 2:
+				System.out.println("Manager mode");
 				tabbedPane.addTab("Employee Selection", null, employeeSelectionPanel, null);
 				tabbedPane.addTab("View Employees", null, viewEmployeesPanel, null);
 				break;
-			}
-			*/
-			
-			// Add tabbedPane to contentPane
-			contentPane.add(tabbedPane);
+			case 3:
+				System.out.println("Team lead mode");
+				tabbedPane.addTab("Employee Selection", null, employeeSelectionPanel, null);
+				break;
 		}
+		
+		// Add tabbedPane to contentPane
+		contentPane.add(tabbedPane);
+		
+		/*
+		// Add activities to tabbedPane
+		tabbedPane.addTab("Employee Selection", null, employeeSelectionPanel, null);
+		tabbedPane.addTab("View Employees", null, viewEmployeesPanel, null);
+		tabbedPane.addTab("Manage Employees", null, manageEmployeesPanel, null);
+		tabbedPane.addTab("Manage Skills", null, manageSkillsPanel, null);
+		*/
+	}
+	/*		
+	public static void setActiveTabs(int profileType){
+		switch(profileType){
+		case 3:
+			employeeSelectionPanel.setActive(true);
+			break;
+		case 1:
+			tabbedPane.addTab("Manage Skills", null, manageSkillsPanel, null);
+			tabbedPane.addTab("Manage Employees", null, manageEmployeesPanel, null);
+			break;		
+		case 2:
+			tabbedPane.addTab("Employee Selection", null, employeeSelectionPanel, null);
+			tabbedPane.addTab("View Employees", null, viewEmployeesPanel, null);
+			break;
+	}
+	}*/
 }

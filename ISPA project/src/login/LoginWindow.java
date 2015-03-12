@@ -1,5 +1,10 @@
 package login;
 
+import gui.EmployeeSelectionPanel;
+import gui.ManageEmployeesPanel;
+import gui.ManageSkillsPanel;
+import gui.ViewEmployeesPanel;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.SystemColor;
@@ -90,8 +95,11 @@ public class LoginWindow {
 						txtrErrorThatUsername.setEnabled(true);
 					}
 					else{
-						//System.out.println("Login accepted");
-						//Login.login(loginType);
+						System.out.println("Login accepted");
+						MainWindow MW = new MainWindow(loginType);
+						MW.setVisible(true);
+						//this.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+						//this.setVisible(false);
 					}
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
@@ -177,5 +185,9 @@ public class LoginWindow {
 		}
 			
 		return 0;
+	}
+	
+	public void login(int profileType){
+		
 	}
 }
