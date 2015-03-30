@@ -103,7 +103,7 @@ public class EmployeeSelectionPanel extends JPanel{
 	    int totalSkills;   
 	    totalSkills = getTotalSkills();
 	    
-	    printTables();
+	    //printTables();
 	    
 	    JComboBox[] levelList;
 	    levelList = new JComboBox[totalSkills];
@@ -512,7 +512,7 @@ public class EmployeeSelectionPanel extends JPanel{
 		return employeeTable;
 	}
 	
-	/*public static void printTables()
+	public static void printTables()
 	{
 		Connection con = null;
 
@@ -574,7 +574,7 @@ public class EmployeeSelectionPanel extends JPanel{
 				System.out.print("Column " + i + " is JDBC type " + jdbcType);
 				System.out.println(", which the DBMS calls " + name);
 		    }
-	}*/
+	}
 	
 	
 }
