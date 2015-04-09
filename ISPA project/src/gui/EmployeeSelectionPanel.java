@@ -429,7 +429,7 @@ public class EmployeeSelectionPanel extends JPanel{
 			}
 		}
 		
-		sortByRating(employees, 0, employees.length);
+		sortByRating(employees, 0, employees.length-1);
 		
 		return employees;
 	}
