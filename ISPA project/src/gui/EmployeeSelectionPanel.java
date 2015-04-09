@@ -103,7 +103,7 @@ public class EmployeeSelectionPanel extends JPanel{
 	    int totalSkills;   
 	    totalSkills = getTotalSkills();
 	    
-	    //printTables();
+	    printTables();
 	    
 	    JComboBox[] levelList;
 	    levelList = new JComboBox[totalSkills];
@@ -429,11 +429,12 @@ public class EmployeeSelectionPanel extends JPanel{
 			}
 		}
 		
-		sortByRating(employees, 0, employees.length);
+		sortByRating(employees, 0, employees.length - 1);
 		
 		return employees;
 	}
 	
+	//Sorts the employees from best to worst
 	public static void sortByRating(employee[] arr, int low, int high) {
 		 
 		if (arr == null || arr.length == 0)
@@ -473,6 +474,7 @@ public class EmployeeSelectionPanel extends JPanel{
 		if (high > i)
 			sortByRating(arr, i, high);
 	}
+	
 	
 	public static selectedSkill[] getSelectedSkills(skill[] skills)
 	{
