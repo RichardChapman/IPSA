@@ -1,6 +1,5 @@
 package gui;
 
-import dbquery.searchQuery;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,26 +7,29 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.awt.Color;
 import java.awt.Font;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.JComboBox;
 
 import java.awt.*;
 import java.awt.event.*;
 
-import javax.swing.*;
-
-import java.util.*;
 
 class skill{
 	public String skillName;
 	public int skillID;
 }
 
+
+//Holds selected skills and their importance
 class selectedSkill{
 	public String skillName;
 	public int skillID;
@@ -35,6 +37,8 @@ class selectedSkill{
 	public int skillImportance;
 }
 
+
+//Holds all employee information
 class employee{
 	public String firstName;
 	public String lastName;
@@ -61,6 +65,12 @@ public class EmployeeSelectionPanel extends JPanel{
 		display();
 	}
 	
+	
+	JButton searchEmployee, resetSearch, searchAgain;
+	JComboBox<String> algorithmSelection;
+	
+	
+	
 	private void display(){
 		this.setLayout(null);
 		
@@ -85,8 +95,9 @@ public class EmployeeSelectionPanel extends JPanel{
         panel.setLayout(employeeLayout);
         
 	    String[] skillLevels = { "None", "Low", "Medium", "High" };
-	    String[] skillImportance = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
+	    String[] skillImportance = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
 	    String[] columnNames = {"First Name", "Last Name", "Dept", "Position"};
+	    String[] algorithms = {"Fuzzy Search", "Richard's search", "Straight search"};
  
 	    //JComboBox levelList = new JComboBox(skillLevels);
 	   // JComboBox importanceList = new JComboBox(skillImportance);
@@ -105,7 +116,7 @@ public class EmployeeSelectionPanel extends JPanel{
 	    
 	    printTables();
 	    
-	    JComboBox[] levelList;
+	    JComboBox<String>[] levelList;
 	    levelList = new JComboBox[totalSkills];
 	    for(int i = 0; i < totalSkills; i++)
 	    {
@@ -145,18 +156,20 @@ public class EmployeeSelectionPanel extends JPanel{
 	    add(scrollPane, BorderLayout.CENTER);
 	    scrollPane.setBounds(50,100,550,300);
 	    
+	    algorithmSelection = new JComboBox<String>(algorithms);
+	    algorithmSelection.setBounds(600, 260, 150, 40);
+	    ((JLabel)algorithmSelection.getRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
+	    this.add(algorithmSelection);
 	    
-	    JButton searchEmployee = new JButton("Search for Employee");
+	    
+	    searchEmployee = new JButton("Search for Employee");
 	    searchEmployee.setFont(new Font("Lucida Grande", Font.BOLD, 10));
-		searchEmployee.setBounds(600, 360, 150, 40);
+		searchEmployee.setBounds(600, 310, 150, 40);
 		searchEmployee.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				String skillName;
-				int skillID;
 				String skillLevel;
-				int skillLvl;
-				int skillImportance;
+				int skillLvl, selectedAlgorithm;
 				selectedSkill skill = new selectedSkill();
 				ArrayList<selectedSkill> selectedSkills = new ArrayList<selectedSkill>();
 				for(int i = 0; i < skills.length; i++)
@@ -192,15 +205,21 @@ public class EmployeeSelectionPanel extends JPanel{
 				ArrayList<employee> employeeList = new ArrayList<employee>();
 				employeeList = getEmployees(selectedResults);
 				System.out.println(employeeList.size());
-				employee[] employees = rateEmployees(employeeList, selectedResults);
+				
+				selectedAlgorithm = algorithmSelection.getSelectedIndex();
+				System.out.println("The selected Algorithm is: "+ selectedAlgorithm);
+				employee[] employees = rateEmployees(employeeList, selectedResults, selectedAlgorithm);
 				
 			
 								
 				scrollPane.setVisible(false);
 				searchEmployee.setVisible(false);
 				searchEmployee.setEnabled(false);
-				//resetSearch.setVisible(false);
-				//resetSearch.setVisible(false);
+				resetSearch.setVisible(false);
+				resetSearch.setEnabled(false);
+				algorithmSelection.setVisible(false);
+				algorithmSelection.setEnabled(false);
+				
 				
 				JTable resultsTable = new JTable(getResultsTable(employees), columnNames);
 				JScrollPane resultsPane = new JScrollPane(resultsTable);
@@ -214,9 +233,9 @@ public class EmployeeSelectionPanel extends JPanel{
 		});
 		this.add(searchEmployee);
 		
-		JButton resetSearch = new JButton("Reset Criteria");
+		resetSearch = new JButton("Reset Criteria");
 	    resetSearch.setFont(new Font("Lucida Grande", Font.BOLD, 10));
-		resetSearch.setBounds(600, 300, 150, 40);
+		resetSearch.setBounds(600, 360, 150, 40);
 		resetSearch.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				for(int i = 0; i < levelList.length; i++)
@@ -244,7 +263,6 @@ public class EmployeeSelectionPanel extends JPanel{
 			String query = "SELECT COUNT(sid) FROM hard_skills_translator";
 			String username = "cis499";
 			final String password = "password";
-		    final String driverClass = "com.mysql.jdbc.Driver";
 		    final String url = "jdbc:mysql://scraggley.cis.umassd.edu/" + username;
 			
 			con = DriverManager.getConnection(url, username, password);
@@ -290,7 +308,6 @@ public class EmployeeSelectionPanel extends JPanel{
 			String query = "SELECT * FROM hard_skills_translator";
 			String username = "cis499";
 			final String password = "password";
-		    final String driverClass = "com.mysql.jdbc.Driver";
 		    final String url = "jdbc:mysql://scraggley.cis.umassd.edu/" + username;
 			
 			con = DriverManager.getConnection(url, username, password);
@@ -349,7 +366,6 @@ public class EmployeeSelectionPanel extends JPanel{
 			
 			String username = "cis499";
 			final String password = "password";
-		    final String driverClass = "com.mysql.jdbc.Driver";
 		    final String url = "jdbc:mysql://scraggley.cis.umassd.edu/" + username;
 			
 			con = DriverManager.getConnection(url, username, password);
@@ -405,31 +421,14 @@ public class EmployeeSelectionPanel extends JPanel{
 	
 	
 	//Rates the employees
-	public static employee[] rateEmployees(ArrayList<employee> getEmployees, selectedSkill[] selectedSkills)
+	public static employee[] rateEmployees(ArrayList<employee> getEmployees, selectedSkill[] selectedSkills, int algorithm)
 	{
-		float difference = 0;
-		int expectedYears = 4;
-		float skillRating;
 		employee[] employees = getEmployees.toArray(new employee[getEmployees.size()]);
-		for(int i = 0; i < employees.length; i++)
-		{
-			for(int j = 0; j < selectedSkills.length; j++)
-			{
-				skillRating = (employees[i].skillLevels.get(j) * 1000) * (1 + ((employees[i].years.get(j)-(expectedYears * employees[i].skillLevels.get(j)))/100));
-				difference = skillRating - (selectedSkills[j].skillLevel * 1000);
-				if (difference > 0)
-				{
-						difference = difference / (1- (selectedSkills[j].skillImportance/3));
-				}
-				else
-				{
-					difference = -1 * difference * (selectedSkills[j].skillImportance/3);
-				}
-				employees[i].rating += difference;
-			}
-		}
 		
-		sortByRating(employees, 0, employees.length - 1);
+		//Add switch statement for other algorithms
+		employees = richardsSearch(getEmployees, selectedSkills);
+
+		sortByRating(employees, 0, employees.length-1);
 		
 		return employees;
 	}
@@ -478,10 +477,6 @@ public class EmployeeSelectionPanel extends JPanel{
 	
 	public static selectedSkill[] getSelectedSkills(skill[] skills)
 	{
-		String skillName;
-		int skillID;
-		String skillLevel;
-		int skillImportance;
 		selectedSkill skill = new selectedSkill();
 		ArrayList<selectedSkill> selectedSkills = new ArrayList<selectedSkill>();
 		for(int i = 0; i < skills.length; i++)
@@ -523,7 +518,6 @@ public class EmployeeSelectionPanel extends JPanel{
 			String query = "SELECT * FROM employee";
 			String username = "cis499";
 			final String password = "password";
-		    final String driverClass = "com.mysql.jdbc.Driver";
 		    final String url = "jdbc:mysql://scraggley.cis.umassd.edu/" + username;
 			
 			con = DriverManager.getConnection(url, username, password);
@@ -578,6 +572,43 @@ public class EmployeeSelectionPanel extends JPanel{
 		    }
 	}
 	
+	public static employee[] fuzzySearch (ArrayList<employee> getEmployees, selectedSkill[] selectedSkills) {
+		employee[] employees = getEmployees.toArray(new employee[getEmployees.size()]);
+		
+		return employees;
+	}
+	
+	public static employee[] richardsSearch (ArrayList<employee> getEmployees, selectedSkill[] selectedSkills) {
+		float difference = 0;
+		int expectedYears = 4;
+		float skillRating;
+		employee[] employees = getEmployees.toArray(new employee[getEmployees.size()]);
+		for(int i = 0; i < employees.length; i++)
+		{
+			for(int j = 0; j < selectedSkills.length; j++)
+			{
+				skillRating = (employees[i].skillLevels.get(j) * 1000) * (1 + ((employees[i].years.get(j)-(expectedYears * employees[i].skillLevels.get(j)))/100));
+				difference = skillRating - (selectedSkills[j].skillLevel * 1000);
+				if (difference > 0)
+				{
+						difference = difference / (1- (selectedSkills[j].skillImportance/3));
+				}
+				else
+				{
+					difference = -1 * difference * (selectedSkills[j].skillImportance/3);
+				}
+				employees[i].rating += difference;
+			}
+		}
+		
+		return employees;
+	}
+	
+	public static employee[] straightSearch (ArrayList<employee> getEmployees, selectedSkill[] selectedSkills) {
+		employee[] employees = getEmployees.toArray(new employee[getEmployees.size()]);
+		
+		return employees;
+	}
 	
 }
 

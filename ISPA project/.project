@@ -14,4 +14,11 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>miglayout-3.5.5-swing.jar</name>
+			<type>1</type>
+			<location>C:/Users/Richie/git/IPSA/ISPA project/miglayout-3.5.5-swing.jar</location>
+		</link>
+	</linkedResources>
 </projectDescription>
