@@ -16,8 +16,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextPane;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.JComboBox;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -47,7 +52,7 @@ class employee{
 	public ArrayList<Integer> years = new ArrayList<Integer>();
 	public String dept;
 	public String position;
-	public int rating = 0;
+	public double rating = 0;
 }
 
 public class EmployeeSelectionPanel extends JPanel{
@@ -67,6 +72,10 @@ public class EmployeeSelectionPanel extends JPanel{
 	
 	
 	JButton searchEmployee, resetSearch, searchAgain;
+	JScrollPane resultsPane;
+	JTable resultsTable;
+	JTextPane reasonForSelection;
+	ListSelectionModel listSelectionModel;
 	JComboBox<String> algorithmSelection;
 	
 	final static double IMPORTANCE_LOW_MIN = 0, IMPORTANCE_LOW_MAX = 4;
@@ -90,6 +99,7 @@ public class EmployeeSelectionPanel extends JPanel{
 		
 	
 	    JPanel panel = new JPanel();
+	    JPanel additionalInfoPanel = new JPanel();
 	    JPanel headerPanel = new JPanel();
 		GridLayout employeeLayout = new GridLayout(0,3);
 	    int vertGap = 5;
@@ -104,7 +114,7 @@ public class EmployeeSelectionPanel extends JPanel{
 	    String[] skillLevels = { "None", "Low", "Medium", "High" };
 	    String[] skillImportance = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
 	    String[] columnNames = {"First Name", "Last Name", "Dept", "Position"};
-	    String[] algorithms = {"Fuzzy Search", "Richard's search", "Basic search"};
+	    String[] algorithms = {"Fuzzy Search", "Complex Fuzzy Search", "Richard's search", "Basic search"};
  
 	    //JComboBox levelList = new JComboBox(skillLevels);
 	   // JComboBox importanceList = new JComboBox(skillImportance);
@@ -158,6 +168,7 @@ public class EmployeeSelectionPanel extends JPanel{
     	ArrayList<selectedSkill> selectedSkills = new ArrayList<selectedSkill>();
 
 	    JScrollPane scrollPane = new JScrollPane(panel);
+	    JScrollPane additionalInfoScrollPane = new JScrollPane(additionalInfoPanel);
 	    
 	    scrollPane.setPreferredSize(new Dimension(200,200));
 	    add(scrollPane, BorderLayout.CENTER);
@@ -177,7 +188,6 @@ public class EmployeeSelectionPanel extends JPanel{
 
 				String skillLevel;
 				int skillLvl, selectedAlgorithm;
-				selectedSkill skill = new selectedSkill();
 				ArrayList<selectedSkill> selectedSkills = new ArrayList<selectedSkill>();
 				for(int i = 0; i < skills.length; i++)
 				{
@@ -196,6 +206,7 @@ public class EmployeeSelectionPanel extends JPanel{
 						{
 							skillLvl = 3;
 						}
+						selectedSkill skill = new selectedSkill();
 						skill.skillName = skills[i].skillName;
 						skill.skillID = skills[i].skillID;
 						skill.skillLevel = skillLvl;
@@ -226,13 +237,35 @@ public class EmployeeSelectionPanel extends JPanel{
 				resetSearch.setEnabled(false);
 				algorithmSelection.setVisible(false);
 				algorithmSelection.setEnabled(false);
+				searchAgain.setVisible(true);
+				searchAgain.setEnabled(true);
 				
 				
-				JTable resultsTable = new JTable(getResultsTable(employees), columnNames);
-				JScrollPane resultsPane = new JScrollPane(resultsTable);
+				resultsTable = new JTable(getResultsTable(employees), columnNames);
+				resultsTable.setCellSelectionEnabled(true);
+				resultsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+				    public void valueChanged(ListSelectionEvent e) {
+				        Integer sel = resultsTable.getSelectedRow();
+				        StringBuilder getReasons = new StringBuilder();
+				        String reasons;
+				        for(int k = 0; k < selectedResults.length; k++)
+				        {
+				        	getReasons.append(selectedResults[k].skillName + ": " + skillLevels[employees[sel].skillLevels.get(k)] + "	Experience: " + employees[sel].years.get(k).toString() + "\n");
+				        	System.out.println(selectedResults[k].skillName);
+				        }
+				        reasons = getReasons.toString();
+				        reasonForSelection.setText(reasons);
+				    }
+				});
+				resultsPane = new JScrollPane(resultsTable);
 				resultsPane.setPreferredSize(new Dimension(200,200));
 			    add(resultsPane, BorderLayout.CENTER);
 			    resultsPane.setBounds(50,100,550,300);
+			    
+			    reasonForSelection = new JTextPane();
+		        reasonForSelection.setEditable(false);
+		        add(reasonForSelection);
+		        reasonForSelection.setBounds(50, 420, 550, 200);
 				
 				
 				
@@ -253,6 +286,33 @@ public class EmployeeSelectionPanel extends JPanel{
 			}
 		});
 		this.add(resetSearch);
+		
+		
+		searchAgain = new JButton("Search Again");
+		searchAgain.setFont(new Font("Lucida Grande", Font.BOLD, 10));
+		searchAgain.setBounds(600, 360, 150, 40);
+		searchAgain.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				searchAgain.setVisible(false);
+				searchAgain.setEnabled(false);
+				reasonForSelection.setVisible(false);
+				reasonForSelection.setEnabled(false);
+				resultsPane.setVisible(false);
+				resultsPane.setEnabled(false);
+				scrollPane.setVisible(true);
+				searchEmployee.setVisible(true);
+				searchEmployee.setEnabled(true);
+				resetSearch.setVisible(true);
+				resetSearch.setEnabled(true);
+				algorithmSelection.setVisible(true);
+				algorithmSelection.setEnabled(true);
+				
+			}
+		});
+		this.add(searchAgain);
+		searchAgain.setVisible(false);
+		searchAgain.setEnabled(false);
+		
 	}
 	
 	
@@ -438,9 +498,11 @@ public class EmployeeSelectionPanel extends JPanel{
 			employees = fuzzySearch(getEmployees, selectedSkills);
 			break;
 		case 1:
+			employees = complexFuzzySearch(getEmployees, selectedSkills);
+		case 2:
 			employees = richardsSearch(getEmployees, selectedSkills);
 			break;
-		case 2:
+		case 3:
 			employees = basicSearch(getEmployees, selectedSkills);
 			break;
 		default:
@@ -463,7 +525,7 @@ public class EmployeeSelectionPanel extends JPanel{
  
 		//pick the pivot
 		int middle = low + (high - low) / 2;
-		int pivot = arr[middle].rating;
+		double pivot = arr[middle].rating;
  
 		//make left < pivot and right > pivot
 		int i = low, j = high;
@@ -596,7 +658,7 @@ public class EmployeeSelectionPanel extends JPanel{
 		employee[] employees = getEmployees.toArray(new employee[getEmployees.size()]);
 		double currentMembership;
 		int difference;
-		int experience;
+		int experience = 3;
 		int importance;
 		int skillFactor;
 		int calculatedSkill;
@@ -624,29 +686,126 @@ public class EmployeeSelectionPanel extends JPanel{
 					importance = 3;
 				}
 				
-				//Use manifolds to determine years of experience membership
-				currentMembership = degreeOfMembership(EXPERIENCE_LOW_MIN, selectedSkills[j].skillImportance, EXPERIENCE_LOW_MAX);//Low
-				membershipTemp = degreeOfMembership(EXPERIENCE_MED_MIN, selectedSkills[j].skillImportance, EXPERIENCE_MED_MAX);//Medium
-				if(membershipTemp >= currentMembership)
+				
+				if(employees[i].years.get(j) < EXPERIENCE_HIGH_MAX)
 				{
-					currentMembership = membershipTemp;
-					experience = 2;
-				}
-				else
-				{
-					experience = 1;
-				}
-				membershipTemp = degreeOfMembership(EXPERIENCE_HIGH_MIN, selectedSkills[j].skillImportance, EXPERIENCE_HIGH_MAX);//High
-				if(membershipTemp >= currentMembership)
-				{
-					currentMembership = membershipTemp;
-					experience = 3;
+					//Use manifolds to determine years of experience membership
+					currentMembership = degreeOfMembership(EXPERIENCE_LOW_MIN, employees[i].years.get(j), EXPERIENCE_LOW_MAX);//Low
+					membershipTemp = degreeOfMembership(EXPERIENCE_MED_MIN, employees[i].years.get(j), EXPERIENCE_MED_MAX);//Medium
+					if(membershipTemp >= currentMembership)
+					{
+						currentMembership = membershipTemp;
+						experience = 2;
+					}
+					else
+					{
+						experience = 1;
+					}
+					membershipTemp = degreeOfMembership(EXPERIENCE_HIGH_MIN, employees[i].years.get(j), EXPERIENCE_HIGH_MAX);//High
+					if(membershipTemp >= currentMembership)
+					{
+						currentMembership = membershipTemp;
+						experience = 3;
+					}
 				}
 				
 				skillFactor = importanceAndExperienceMatrix(importance, experience);
 				calculatedSkill = skillFactorSkillLevelMatrix(skillFactor, employees[i].skillLevels.get(j));
 				
 				difference = calculatedSkill - selectedSkills[j].skillLevel;
+				if (difference < 0)
+				{
+						difference = -1 * difference;
+				}
+				employees[i].rating += difference;
+			}
+		}
+		
+		
+		return employees;
+	}
+	
+	public static employee[] complexFuzzySearch (ArrayList<employee> getEmployees, selectedSkill[] selectedSkills) {
+		
+		employee[] employees = getEmployees.toArray(new employee[getEmployees.size()]);
+		double[] importanceMembership = new double[3];
+		double[] experienceMembership = {0, 0, 1};
+		double[] skillFactorMembership = {0, 0, 0};
+		double[] calculatedSkills = {0, 0, 0, 0};
+		double percentage = 0;
+		double difference = 0;
+		int skillFactor;
+		int calculatedSkill;
+		for(int i = 0; i < employees.length; i++)
+		{
+			for(int j = 0; j < selectedSkills.length; j++)
+			{
+				
+				//Use manifolds to determine importance membership
+				importanceMembership[0] = degreeOfMembership(IMPORTANCE_LOW_MIN, selectedSkills[j].skillImportance, IMPORTANCE_LOW_MAX);//Low
+				importanceMembership[1] = degreeOfMembership(IMPORTANCE_MED_MIN, selectedSkills[j].skillImportance, IMPORTANCE_MED_MAX);//Medium
+				importanceMembership[2] = degreeOfMembership(IMPORTANCE_HIGH_MIN, selectedSkills[j].skillImportance, IMPORTANCE_HIGH_MAX);//High
+				
+				//Use manifolds to determine years of experience membership
+				if (employees[i].years.get(j) < EXPERIENCE_HIGH_MAX)
+				{
+					experienceMembership[0] = degreeOfMembership(EXPERIENCE_LOW_MIN, employees[i].years.get(j), EXPERIENCE_LOW_MAX);//Low
+					experienceMembership[1] = degreeOfMembership(EXPERIENCE_MED_MIN, employees[i].years.get(j), EXPERIENCE_MED_MAX);//Medium
+					experienceMembership[2] = degreeOfMembership(EXPERIENCE_HIGH_MIN, employees[i].years.get(j), EXPERIENCE_HIGH_MAX);//High
+				}
+				
+				for(int k = 0; k < 3; k++)
+				{
+					for(int l = 0; l < 3; l++)
+					{
+						skillFactor = importanceAndExperienceMatrix(k+1,l+1);
+						switch (skillFactor) {
+						case 1: 
+							skillFactorMembership[0] += importanceMembership[k] * experienceMembership[l];
+							break;
+						case 2: 
+							skillFactorMembership[1] += importanceMembership[k] * experienceMembership[l];
+							break;
+						case 3:
+							skillFactorMembership[2] += importanceMembership[k] * experienceMembership[l];
+							break;
+						default:
+							System.out.println("Something went wrong in complex fuzzy. IandE matrix returned something wrong");
+							break;
+						}
+					}
+				}
+				
+				for(int k = 0; k < 3; k++)
+				{
+					calculatedSkill = skillFactorSkillLevelMatrix(k + 1, employees[i].skillLevels.get(j));
+					switch (calculatedSkill) {
+					case 0:
+						calculatedSkills[0] = 1;
+						break;
+					case 1: 
+						calculatedSkills[1] += (double)calculatedSkill * skillFactorMembership[0];
+						break;
+					case 2: 
+						calculatedSkills[2] += (double)calculatedSkill * skillFactorMembership[1];
+						break;
+					case 3:
+						calculatedSkills[3] += (double)calculatedSkill * skillFactorMembership[2];
+						break;
+					default:
+						System.out.println("Something went wrong in complex fuzzy. FandL matrix returned something wrong");
+						break;
+					}
+				}
+				
+				percentage = calculatedSkills[0] + calculatedSkills[1] + calculatedSkills[2] + calculatedSkills[3];
+				
+				for(int k = 0; k<4; k++)
+				{
+					difference += calculatedSkills[k] / percentage;
+				}
+				difference -= selectedSkills[j].skillLevel;
+				
 				if (difference < 0)
 				{
 						difference = -1 * difference;
@@ -738,11 +897,11 @@ public class EmployeeSelectionPanel extends JPanel{
 				+===+===+===+===+
 				|   | L | M | H |
 				+===+===+===+===+
-			E	| H | M | H | H |
+			E	| H | H | H | H |
 			X	+---+---+---+---+
-			P	| M | L | M | H |
+			P	| M | H | M | M |
 				+---+---+---+---+
-				| L | L | M | M |
+				| L | M | L | L |
 				+---+---+---+---+
 				
 		*/
@@ -751,44 +910,44 @@ public class EmployeeSelectionPanel extends JPanel{
         switch (importance) {
         case 1:  
         	switch(experience) {
-        	case 1:	value = 1;//Low-Low
+        	case 1:	value = 2;//Low-Low
         			break;
-        	case 2: value = 1;//Low-Medium
+        	case 2: value = 3;//Low-Medium
         			break;
-        	case 3: value = 2;//Low-High
+        	case 3: value = 3;//Low-High
         			break;
         	default:
-        			System.out.println("Error passing variables to importanceAndExperienceMatrix");
+        			System.out.println("Error passing variables to importanceAndExperienceMatrix, importance =" + importance + " exp = " + experience);
         			break;
         	}  
                  break;
         case 2:  
         	switch(experience) {
-        	case 1:	value = 2;//Medium-Low
+        	case 1:	value = 1;//Medium-Low
         			break;
         	case 2: value = 2;//Medium-Medium
         			break;
         	case 3: value = 3;//Medium-High
         			break;
         	default:
-        			System.out.println("Error passing variables to importanceAndExperienceMatrix");
+        			System.out.println("Error passing variables to importanceAndExperienceMatrix, importance =" + importance + " exp = " + experience);
         			break;
         	}
                  break;
         case 3:  
         	switch(experience) {
-        	case 1:	value = 2;//High-Low
+        	case 1:	value = 1;//High-Low
         			break;
-        	case 2: value = 3;//High-Medium
+        	case 2: value = 2;//High-Medium
         			break;
         	case 3: value = 3;//High-High
         			break;
         	default:
-        			System.out.println("Error passing variables to importanceAndExperienceMatrix");
+        			System.out.println("Error passing variables to importanceAndExperienceMatrix, importance =" + importance + " exp = " + experience);
         			break;
         	}
                  break;
-        default: System.out.println("Error passing variables to importanceAndExperienceMatrix");
+        default: System.out.println("Error passing variables to importanceAndExperienceMatrix, importance =" + importance + " exp = " + experience);
                  break;
         }
 		
@@ -802,9 +961,9 @@ public class EmployeeSelectionPanel extends JPanel{
 				+===+===+===+===+
 				|   | L | M | H |
 			F	+===+===+===+===+
-			A	| H | H | H | H |
+			A	| H | M | H | H |
 			C	+---+---+---+---+
-			T	| M | M | M | M |
+			T	| M | M | M | H |
 			O	+---+---+---+---+
 			R	| L | L | L | M |
 				+---+---+---+---+
@@ -813,16 +972,19 @@ public class EmployeeSelectionPanel extends JPanel{
 		int value = 0;
 		
         switch (skillLevel) {
+        case 0:
+        	value = 0;
+        	break;
         case 1:  
         	switch(skillFactor) {
         	case 1:	value = 1;//Low-Low
         			break;
         	case 2: value = 2;//Low-Medium
         			break;
-        	case 3: value = 3;//Low-High
+        	case 3: value = 2;//Low-High
         			break;
         	default:
-        			System.out.println("Error passing variables to importanceAndExperienceMatrix");
+        			System.out.println("Error passing variables to skillFactorSkillLevelMatrix, factor="+skillFactor+" level="+skillLevel);
         			break;
         	}  
                  break;
@@ -835,7 +997,7 @@ public class EmployeeSelectionPanel extends JPanel{
         	case 3: value = 3;//Medium-High
         			break;
         	default:
-        			System.out.println("Error passing variables to importanceAndExperienceMatrix");
+        			System.out.println("Error passing variables to skillFactorSkillLevelMatrix, factor="+skillFactor+" level="+skillLevel);
         			break;
         	}
                  break;
@@ -843,22 +1005,41 @@ public class EmployeeSelectionPanel extends JPanel{
         	switch(skillFactor) {
         	case 1:	value = 2;//High-Low
         			break;
-        	case 2: value = 2;//High-Medium
+        	case 2: value = 3;//High-Medium
         			break;
         	case 3: value = 3;//High-High
         			break;
         	default:
-        			System.out.println("Error passing variables to importanceAndExperienceMatrix");
+        			System.out.println("Error passing variables to skillFactorSkillLevelMatrix, factor="+skillFactor+" level="+skillLevel);
         			break;
         	}
                  break;
-        default: System.out.println("Error passing variables to importanceAndExperienceMatrix");
+        default: System.out.println("Error passing variables to skillFactorSkillLevelMatrix, factor="+skillFactor+" level="+skillLevel);
                  break;
         }
 		
 		
 		return value;
 	}
+	
+    class SharedListSelectionHandler implements ListSelectionListener {
+        public void valueChanged(ListSelectionEvent e) { 
+            ListSelectionModel lsm = (ListSelectionModel)e.getSource();
+ 
+            Integer firstIndex = e.getFirstIndex();
+            Integer lastIndex = e.getLastIndex();
+            boolean isAdjusting = e.getValueIsAdjusting();
+            if (lsm.isSelectionEmpty()) {
+
+            }
+            String currentSelection;
+            currentSelection = firstIndex.toString();
+            reasonForSelection.setText(currentSelection);
+            
+        }
+    }
+	
+	
 }
 
 
