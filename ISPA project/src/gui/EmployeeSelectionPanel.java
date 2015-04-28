@@ -16,13 +16,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.JComboBox;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -74,7 +77,7 @@ public class EmployeeSelectionPanel extends JPanel{
 	JButton searchEmployee, resetSearch, searchAgain;
 	JScrollPane resultsPane;
 	JTable resultsTable;
-	JTextPane reasonForSelection;
+	JTextPane reasonForSelection, experienceForSelection;
 	ListSelectionModel listSelectionModel;
 	JComboBox<String> algorithmSelection;
 	
@@ -99,7 +102,6 @@ public class EmployeeSelectionPanel extends JPanel{
 		
 	
 	    JPanel panel = new JPanel();
-	    JPanel additionalInfoPanel = new JPanel();
 	    JPanel headerPanel = new JPanel();
 		GridLayout employeeLayout = new GridLayout(0,3);
 	    int vertGap = 5;
@@ -114,7 +116,7 @@ public class EmployeeSelectionPanel extends JPanel{
 	    String[] skillLevels = { "None", "Low", "Medium", "High" };
 	    String[] skillImportance = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
 	    String[] columnNames = {"First Name", "Last Name", "Dept", "Position"};
-	    String[] algorithms = {"Fuzzy Search", "Complex Fuzzy Search", "Richard's search", "Basic search"};
+	    String[] algorithms = {"Fuzzy Search", "Complex Fuzzy Search", "Dynamic search", "Basic search"};
  
 	    //JComboBox levelList = new JComboBox(skillLevels);
 	   // JComboBox importanceList = new JComboBox(skillImportance);
@@ -165,10 +167,8 @@ public class EmployeeSelectionPanel extends JPanel{
 
     	}
     	
-    	ArrayList<selectedSkill> selectedSkills = new ArrayList<selectedSkill>();
 
 	    JScrollPane scrollPane = new JScrollPane(panel);
-	    JScrollPane additionalInfoScrollPane = new JScrollPane(additionalInfoPanel);
 	    
 	    scrollPane.setPreferredSize(new Dimension(200,200));
 	    add(scrollPane, BorderLayout.CENTER);
@@ -245,16 +245,46 @@ public class EmployeeSelectionPanel extends JPanel{
 				resultsTable.setCellSelectionEnabled(true);
 				resultsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 				    public void valueChanged(ListSelectionEvent e) {
-				        Integer sel = resultsTable.getSelectedRow();
-				        StringBuilder getReasons = new StringBuilder();
-				        String reasons;
+				    	reasonForSelection.setText("");
+				    	experienceForSelection.setText("");
+				    	StyledDocument skillsDoc = reasonForSelection.getStyledDocument();
+				    	StyledDocument experienceDoc = experienceForSelection.getStyledDocument();
+
+					    Style style = reasonForSelection.addStyle("I'm a Style", null);
+				    	
+				        Integer selectedEmployee = resultsTable.getSelectedRow();
+				        
 				        for(int k = 0; k < selectedResults.length; k++)
 				        {
-				        	getReasons.append(selectedResults[k].skillName + ": " + skillLevels[employees[sel].skillLevels.get(k)] + "	Experience: " + employees[sel].years.get(k).toString() + "\n");
-				        	System.out.println(selectedResults[k].skillName);
+				        	StyleConstants.setForeground(style, Color.black);
+					        try { skillsDoc.insertString(skillsDoc.getLength(), selectedResults[k].skillName + ": ", style); }
+					        catch (BadLocationException ee){}
+					        
+					        if(employees[selectedEmployee].skillLevels.get(k) > selectedResults[k].skillLevel)
+					        {
+					        	StyleConstants.setForeground(style, Color.green);
+						        try { skillsDoc.insertString(skillsDoc.getLength(), skillLevels[employees[selectedEmployee].skillLevels.get(k)] + "\n", style); }
+						        catch (BadLocationException ee){}
+					        }
+					        else if(employees[selectedEmployee].skillLevels.get(k) == selectedResults[k].skillLevel)
+					        {
+					        	StyleConstants.setForeground(style, Color.blue);
+						        try { skillsDoc.insertString(skillsDoc.getLength(), skillLevels[employees[selectedEmployee].skillLevels.get(k)] + "\n", style); }
+						        catch (BadLocationException ee){}
+					        }
+					        else if(employees[selectedEmployee].skillLevels.get(k) < selectedResults[k].skillLevel)
+					        {
+					        	StyleConstants.setForeground(style, Color.red);
+						        try { skillsDoc.insertString(skillsDoc.getLength(), skillLevels[employees[selectedEmployee].skillLevels.get(k)] + "\n", style); }
+						        catch (BadLocationException ee){}
+					        }
+					        
+					        
+					        
+					        StyleConstants.setForeground(style, Color.black);
+					        try { experienceDoc.insertString(experienceDoc.getLength(), "Experience : " + employees[selectedEmployee].years.get(k).toString() + "\n", style); }
+					        catch (BadLocationException ee){}
 				        }
-				        reasons = getReasons.toString();
-				        reasonForSelection.setText(reasons);
 				    }
 				});
 				resultsPane = new JScrollPane(resultsTable);
@@ -265,7 +295,12 @@ public class EmployeeSelectionPanel extends JPanel{
 			    reasonForSelection = new JTextPane();
 		        reasonForSelection.setEditable(false);
 		        add(reasonForSelection);
-		        reasonForSelection.setBounds(50, 420, 550, 200);
+		        reasonForSelection.setBounds(50, 420, 225, 200);
+		        
+		        experienceForSelection = new JTextPane();
+		        experienceForSelection.setEditable(false);
+		        add(experienceForSelection);
+		        experienceForSelection.setBounds(275, 420, 225, 200);
 				
 				
 				
@@ -297,6 +332,8 @@ public class EmployeeSelectionPanel extends JPanel{
 				searchAgain.setEnabled(false);
 				reasonForSelection.setVisible(false);
 				reasonForSelection.setEnabled(false);
+				experienceForSelection.setVisible(false);
+				experienceForSelection.setEnabled(false);
 				resultsPane.setVisible(false);
 				resultsPane.setEnabled(false);
 				scrollPane.setVisible(true);
@@ -314,8 +351,6 @@ public class EmployeeSelectionPanel extends JPanel{
 		searchAgain.setEnabled(false);
 		
 	}
-	
-	
 	
 	
 	//Gets the total amount of skills there are
@@ -728,7 +763,7 @@ public class EmployeeSelectionPanel extends JPanel{
 	public static employee[] complexFuzzySearch (ArrayList<employee> getEmployees, selectedSkill[] selectedSkills) {
 		
 		employee[] employees = getEmployees.toArray(new employee[getEmployees.size()]);
-		double[] importanceMembership = new double[3];
+		double[] importanceMembership = {0, 0, 0};
 		double[] experienceMembership = {0, 0, 1};
 		double[] skillFactorMembership = {0, 0, 0};
 		double[] calculatedSkills = {0, 0, 0, 0};
@@ -770,7 +805,7 @@ public class EmployeeSelectionPanel extends JPanel{
 							skillFactorMembership[2] += importanceMembership[k] * experienceMembership[l];
 							break;
 						default:
-							System.out.println("Something went wrong in complex fuzzy. IandE matrix returned something wrong");
+							System.out.println("Something went wrong in complex fuzzy. I and E matrix returned something wrong");
 							break;
 						}
 					}
@@ -784,13 +819,13 @@ public class EmployeeSelectionPanel extends JPanel{
 						calculatedSkills[0] = 1;
 						break;
 					case 1: 
-						calculatedSkills[1] += (double)calculatedSkill * skillFactorMembership[0];
+						calculatedSkills[1] += (double)calculatedSkill * skillFactorMembership[k];
 						break;
 					case 2: 
-						calculatedSkills[2] += (double)calculatedSkill * skillFactorMembership[1];
+						calculatedSkills[2] += (double)calculatedSkill * skillFactorMembership[k];
 						break;
 					case 3:
-						calculatedSkills[3] += (double)calculatedSkill * skillFactorMembership[2];
+						calculatedSkills[3] += (double)calculatedSkill * skillFactorMembership[k];
 						break;
 					default:
 						System.out.println("Something went wrong in complex fuzzy. FandL matrix returned something wrong");
@@ -802,7 +837,7 @@ public class EmployeeSelectionPanel extends JPanel{
 				
 				for(int k = 0; k<4; k++)
 				{
-					difference += calculatedSkills[k] / percentage;
+					difference += (calculatedSkills[k] / percentage);
 				}
 				difference -= selectedSkills[j].skillLevel;
 				
@@ -831,11 +866,11 @@ public class EmployeeSelectionPanel extends JPanel{
 				difference = skillRating - (selectedSkills[j].skillLevel * 1000);
 				if (difference > 0)
 				{
-						difference = difference / (1- (selectedSkills[j].skillImportance/3));
+						difference = difference / (1 + (selectedSkills[j].skillImportance/3));
 				}
 				else
 				{
-					difference = -1 * difference * (selectedSkills[j].skillImportance/3);
+					difference = -1 * difference * (1 + (selectedSkills[j].skillImportance/3));
 				}
 				employees[i].rating += difference;
 			}
@@ -1021,25 +1056,6 @@ public class EmployeeSelectionPanel extends JPanel{
 		
 		return value;
 	}
-	
-    class SharedListSelectionHandler implements ListSelectionListener {
-        public void valueChanged(ListSelectionEvent e) { 
-            ListSelectionModel lsm = (ListSelectionModel)e.getSource();
- 
-            Integer firstIndex = e.getFirstIndex();
-            Integer lastIndex = e.getLastIndex();
-            boolean isAdjusting = e.getValueIsAdjusting();
-            if (lsm.isSelectionEmpty()) {
-
-            }
-            String currentSelection;
-            currentSelection = firstIndex.toString();
-            reasonForSelection.setText(currentSelection);
-            
-        }
-    }
-	
-	
 }
 
 
