@@ -5,15 +5,14 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
+import dbquery.connectionData;
+
 public class searchQuery {
 	
 	/*
 	 * Variables for connecting to the server.
 	 */
-	final static String username = "cis499";
-	final static String password = "password";
 	final static String driverClass = "com.mysql.jdbc.Driver";
-	final static String url = "jdbc:mysql://scraggley.cis.umassd.edu/" + username;
 	
 	/*
 	 * Empty constructor
@@ -40,7 +39,7 @@ public class searchQuery {
 		 */
 		try {
 		// Open a DB Connection
-		connection = DriverManager.getConnection(url, username, password);
+		connection = DriverManager.getConnection(connectionData.address, connectionData.username, connectionData.password);
 
 		// Create a Statement
 		Statement stmnt = connection.createStatement();
@@ -73,7 +72,7 @@ public class searchQuery {
 		Connection connection = null;
 		try {
 		// Open a DB Connection
-		connection = DriverManager.getConnection(url, username, password);
+		connection = DriverManager.getConnection(connectionData.address, connectionData.username, connectionData.password);
 
 		// Create a Statement
 		Statement stmnt = connection.createStatement();

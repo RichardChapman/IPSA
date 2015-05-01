@@ -28,6 +28,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import dbquery.connectionData;
 import net.miginfocom.swing.MigLayout;
 import main_window.MainWindow;
 
@@ -147,12 +148,8 @@ public class LoginWindow {
 			
 		try {
 			String query = "SELECT * FROM logins;";
-			String username = "cis499";
-			final String password = "password";
-		    final String driverClass = "com.mysql.jdbc.Driver";
-		    final String url = "jdbc:mysql://scraggley.cis.umassd.edu/" + username;
 			
-			con = DriverManager.getConnection(url, username, password);
+			con = DriverManager.getConnection(connectionData.address, connectionData.username, connectionData.password);
 	        // Create a Statement
 	        Statement stmnt = con.createStatement();
 
